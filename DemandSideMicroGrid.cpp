@@ -7,6 +7,7 @@
 #include <string>
 #include <vector>
 #include <iomanip>
+#include <memory.h>
 using namespace std;
 
 //Choose Area
@@ -59,7 +60,8 @@ using namespace std;
 #define MAX_DELAY 6
 #define STAGE 1
 #define FACTOR 1000000
-#define CASES 10
+#define DATA_HEAD 1
+#define DATA_TAIL 10
 const string INPUT_ENV_NAME = "inst";
 const string INPUT_APP_NAME = "iMnum";
 const string OUTPUT_FILE_NAME = "ga_log";
@@ -722,7 +724,7 @@ int main()
 		adjust[i] = 1 + exp(float(-i));
 	srand((unsigned int)time(0));
 	start = clock();
-	for (int i = 3;i <= CASES;i++)
+	for (int i = DATA_HEAD;i <= DATA_TAIL;i++)
 	{
 		history_best = Genetype();
 		count = 0;
@@ -749,7 +751,7 @@ int main()
 			else prefix.append("/");
 			break;
 		}
-		cout << "0%\n";
+		printf("0%%\n");
 		//init_file();
 		while (count < MAX_LOOP_TIME)
 		{
@@ -773,7 +775,8 @@ int main()
 				evaluate();
 			}
 			trace(MAX_LOOP_TIME,prefix);
-			cout << progress_bar << fixed << setprecision(2) << complete_percent << "%\n";
+			//cout << progress_bar << fixed << setprecision(2) << complete_percent << "%\n";
+            printf("%s%.2f%%\n",progress_bar.c_str(),complete_percent);
 			count++;
 		}
 		
@@ -811,6 +814,7 @@ int main()
 	}
 	
 	end = clock();
-	cout << "\nCompleted.\nTime used: " << (double)(end - start) / (CLOCKS_PER_SEC * 60) << " min\n";
+	//cout << "\nCompleted.\nTime used: " << (double)(end - start) / (CLOCKS_PER_SEC * 60) << " min\n";
+    printf("\nCompleted.\nTime used: %.2f min",(double)(end - start) / (CLOCKS_PER_SEC * 60));
 	return 0;
 }

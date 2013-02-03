@@ -57,11 +57,11 @@ using namespace std;
 #define P_SUBSTITUTE 0.05
 #define ROLL_BOUND 1
 #define MAX_LOOP_TIME 10
-#define MAX_DELAY 6
+#define MAX_DELAY 9
 #define STAGE 1
 #define FACTOR 1000000
-#define DATA_HEAD 1
-#define DATA_TAIL 10
+#define DATA_HEAD 3
+#define DATA_TAIL 3
 const string INPUT_ENV_NAME = "inst";
 const string INPUT_APP_NAME = "iMnum";
 const string OUTPUT_FILE_NAME = "ga_log";

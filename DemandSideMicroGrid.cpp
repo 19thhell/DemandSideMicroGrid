@@ -822,6 +822,6 @@ int main()
 	
 	end = clock();
 	//cout << "\nCompleted.\nTime used: " << (double)(end - start) / (CLOCKS_PER_SEC * 60) << " min\n";
-    printf("\nCompleted.\nTime used: %f min\n",(double)(end - start) / (CLOCKS_PER_SEC * 60));
+    printf("\nCompleted.\nTime used: %.2f min\n",(double)(end - start) / (CLOCKS_PER_SEC * 60));
 	return 0;
 }

@@ -57,11 +57,11 @@ using namespace std;
 #define P_SUBSTITUTE 0.05
 #define ROLL_BOUND 1
 #define MAX_LOOP_TIME 10
-#define MAX_DELAY 9
+#define MAX_DELAY 12
 #define STAGE 1
 #define FACTOR 1000000
-#define DATA_HEAD 3
-#define DATA_TAIL 3
+#define DATA_HEAD 1
+#define DATA_TAIL 10
 const string INPUT_ENV_NAME = "inst";
 const string INPUT_APP_NAME = "iMnum";
 const string OUTPUT_FILE_NAME = "ga_log";
@@ -592,7 +592,9 @@ void mutate()
 				double loaded[CHECK_POINT] = {0};
 				int type = j % GENE_PER_POINT,point = j / GENE_PER_POINT,amount,step,remain;
 				population[i].gene[j].load.clear();
-				population[i].gene[j].load.push_back(request[type][point]);
+                if (request[type][point].amount > 0)
+                    population[i].gene[j].load.push_back(request[type][point]);
+                else continue;
 				Request temp = population[i].gene[j].load.back();
 				while (true)
 				{
@@ -727,6 +729,11 @@ int main()
 	for (int i = DATA_HEAD;i <= DATA_TAIL;i++)
 	{
 		history_best = Genetype();
+        for (int j = 0;j <= POP_SIZE;j++)
+        {
+            population[j] = Genetype();
+            newpopulation[j] = Genetype();
+        }
 		count = 0;
 		complete_percent = 0;
 		progress_bar.clear();
@@ -751,7 +758,7 @@ int main()
 			else prefix.append("/");
 			break;
 		}
-		printf("0%%\n");
+		printf("Case %d: \n0%%\n",i);
 		//init_file();
 		while (count < MAX_LOOP_TIME)
 		{
@@ -768,8 +775,8 @@ int main()
 				report(count,prefix);
 				crossover();
 				mutate();
-				if (stable >= MAX_STABLE)
-					rollback();
+			//	if (stable >= MAX_STABLE)
+			//		rollback();
 				if (population[POP_SIZE].fitness > history_best.fitness)
 					history_best = population[POP_SIZE];
 				evaluate();
@@ -815,6 +822,6 @@ int main()
 	
 	end = clock();
 	//cout << "\nCompleted.\nTime used: " << (double)(end - start) / (CLOCKS_PER_SEC * 60) << " min\n";
-    printf("\nCompleted.\nTime used: %.2f min",(double)(end - start) / (CLOCKS_PER_SEC * 60));
+    printf("\nCompleted.\nTime used: %f min\n",(double)(end - start) / (CLOCKS_PER_SEC * 60));
 	return 0;
 }

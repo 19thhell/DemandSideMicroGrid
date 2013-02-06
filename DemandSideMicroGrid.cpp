@@ -57,7 +57,7 @@ using namespace std;
 #define P_SUBSTITUTE 0.05
 #define ROLL_BOUND 1
 #define MAX_LOOP_TIME 10
-#define MAX_DELAY 12
+#define MAX_DELAY 3
 #define STAGE 1
 #define FACTOR 1000000
 #define DATA_HEAD 1
@@ -718,7 +718,7 @@ void trace(int cnt,string prefix)
 
 int main()
 {
-	int count;
+	int count,j;
 	clock_t start,end;
 	string progress_bar,prefix;
 	double complete_percent;
@@ -729,7 +729,7 @@ int main()
 	for (int i = DATA_HEAD;i <= DATA_TAIL;i++)
 	{
 		history_best = Genetype();
-        for (int j = 0;j <= POP_SIZE;j++)
+        for (j = 0;j <= POP_SIZE;j++)
         {
             population[j] = Genetype();
             newpopulation[j] = Genetype();
@@ -788,7 +788,6 @@ int main()
 		}
 		
 		ofstream ftotal(string(prefix).append("ga_bestgene.txt").c_str());
-		int j;
 		for (j = 0;j < NUM_OF_GENE;j++)
 		{
 			for (int k = 0;k < history_best.gene[j].load.size();k++)
@@ -801,7 +800,6 @@ int main()
 		ftotal.close();
 
 		ofstream fuse(string(prefix).append("ga_use.txt").c_str());
-		double sum;
 		int i,k,p;
 		memset(load,0,sizeof(load));
 		for (j = 0;j < CHECK_POINT;j++)

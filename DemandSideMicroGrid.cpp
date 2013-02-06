@@ -57,7 +57,7 @@ using namespace std;
 #define P_SUBSTITUTE 0.05
 #define ROLL_BOUND 1
 #define MAX_LOOP_TIME 10
-#define MAX_DELAY 12
+#define MAX_DELAY 3
 #define STAGE 1
 #define FACTOR 1000000
 #define DATA_HEAD 1
@@ -89,7 +89,7 @@ double load[CHECK_POINT] = {0};
 double regular[CHECK_POINT] = {0};
 double shiftable[CHECK_POINT] = {0};
 double price[STAGE + 1][CHECK_POINT] = {0};
-double stage[STAGE + 1] = {0};
+double stage[STAGE + 1][CHECK_POINT] = {0};
 double total_usage;
 int max_duration;
 
@@ -210,8 +210,9 @@ void initialize(int cnt)
 		}
 		break;
 	}
-	for (int i = 1;i <= STAGE;i++)
-		stage[i] = 10000;
+	/*for (int i = 1;i <= STAGE;i++)
+		for (int j = 0;j < CHECK_POINT;j++)
+			stage[i][j] = 10000;*/
 	//读取环境变量
 	ifstream fdur(string(dir).append("duration.txt").c_str());
 	max_duration = 0;
@@ -222,6 +223,15 @@ void initialize(int cnt)
 			max_duration = duration[i];
 	}
 	fdur.close();
+	ifstream fpsg(string(dir).append("pricestage.txt").c_str());
+	for (int i = 0;i < CHECK_POINT;i++)
+	{
+		int point;
+		fpsg >> point;
+		for (int j = 1;j <= STAGE;j++)
+			fpsg >> price[j][point] >> stage[j][point];
+	}
+	fpsg.close();
 	ifstream ftyp(dirtyp.append("type.txt").c_str());
 	for (int i = 0;i < NUM_OF_TYPE;i++)
 	{
@@ -236,8 +246,7 @@ void initialize(int cnt)
 	for (int i = 0;i < CHECK_POINT;i++)
 	{
 		fenv >> point;
-		for (int j = 1;j <= STAGE;j++)
-			fenv >> price[j][point];
+		fenv >> price[1][point];
 		fenv >> shiftable[point] >> regular[point];
 		total_usage += shiftable[point] + regular[point];
 	}
@@ -292,23 +301,19 @@ void initialize(int cnt)
 						for (t = 0;t <= remain;t++)
 							for (int p = 0;p < duration[type];p++)
 							{
-								int s;
-								double use = loaded[(j + temp.step + t + p) % CHECK_POINT] + current[p];
+								int s,pt;
+								pt = (j + temp.step + t + p) % CHECK_POINT;
+								double use = loaded[pt] + current[p];
 								for (s = 1;s <= STAGE;s++)
-									if (use >= stage[s - 1] && use < stage[s])
+									if (use >= stage[s - 1][pt] && use < stage[s][pt])
 										break;
-								possible[t + 1] += use * price[s][(j + temp.step + t + p) % CHECK_POINT];
+								possible[t + 1] += use * price[s][pt];
 							}
 						double sum = 0;
 						for (int p = 1;p <= t;p++)
 						{
-							for (int s = 1;s <= STAGE;s++)
-								if (possible[p] >= stage[s - 1] && possible[p] < stage[s])
-								{
-									possible[p] = total_usage / possible[p];
-									sum += possible[p];
-									break;
-								}
+							possible[p] = total_usage / possible[p];
+							sum += possible[p];
 						}
 						//根据每个时刻用电量占的比例，用轮盘确定请求延后的时间
 						for (int p = 1;p <= t;p++)
@@ -355,7 +360,7 @@ void evaluate()
 			}
 			double total = load[j] + regular[j];
 			for (k = 1;k < STAGE;k++)
-				if (total >= stage[k - 1] && total < stage[k])
+				if (total >= stage[k - 1][j] && total < stage[k][j])
 					break;
 			sum += total * price[k][j];
 		}
@@ -615,23 +620,19 @@ void mutate()
 						for (t = 0;t <= remain;t++)
 							for (int p = 0;p < duration[type];p++)
 							{
-								int s;
-								double use = loaded[(j + temp.step + t + p) % CHECK_POINT] + current[p];
+								int s,pt;
+								pt = (j + temp.step + t + p) % CHECK_POINT;
+								double use = loaded[pt] + current[p];
 								for (s = 1;s <= STAGE;s++)
-									if (use >= stage[s - 1] && use < stage[s])
+									if (use >= stage[s - 1][pt] && use < stage[s][pt])
 										break;
-								possible[t + 1] += use * price[s][(j + temp.step + t + p) % CHECK_POINT];
+								possible[t + 1] += use * price[s][pt];
 							}
 						double sum = 0;
 						for (int p = 1;p <= t;p++)
 						{
-							for (int s = 1;s <= STAGE;s++)
-								if (possible[p] >= stage[s - 1] && possible[p] < stage[s])
-								{
-									possible[p] = total_usage / possible[p];
-									sum += possible[p];
-									break;
-								}
+							possible[p] = total_usage / possible[p];
+							sum += possible[p];
 						}
 						for (int p = 1;p <= t;p++)
 							possible[p] = possible[p] / sum + possible[p - 1];
@@ -718,7 +719,7 @@ void trace(int cnt,string prefix)
 
 int main()
 {
-	int count;
+	int count,j;
 	clock_t start,end;
 	string progress_bar,prefix;
 	double complete_percent;
@@ -729,7 +730,7 @@ int main()
 	for (int i = DATA_HEAD;i <= DATA_TAIL;i++)
 	{
 		history_best = Genetype();
-        for (int j = 0;j <= POP_SIZE;j++)
+        for (j = 0;j <= POP_SIZE;j++)
         {
             population[j] = Genetype();
             newpopulation[j] = Genetype();
@@ -788,7 +789,6 @@ int main()
 		}
 		
 		ofstream ftotal(string(prefix).append("ga_bestgene.txt").c_str());
-		int j;
 		for (j = 0;j < NUM_OF_GENE;j++)
 		{
 			for (int k = 0;k < history_best.gene[j].load.size();k++)
@@ -801,7 +801,6 @@ int main()
 		ftotal.close();
 
 		ofstream fuse(string(prefix).append("ga_use.txt").c_str());
-		double sum;
 		int i,k,p;
 		memset(load,0,sizeof(load));
 		for (j = 0;j < CHECK_POINT;j++)
@@ -822,6 +821,6 @@ int main()
 	
 	end = clock();
 	//cout << "\nCompleted.\nTime used: " << (double)(end - start) / (CLOCKS_PER_SEC * 60) << " min\n";
-    printf("\nCompleted.\nTime used: %.2f min\n",(double)(end - start) / (CLOCKS_PER_SEC * 60));
+    printf("\nCompleted.\nTime used: %f min\n",(double)(end - start) / (CLOCKS_PER_SEC * 60));
 	return 0;
 }

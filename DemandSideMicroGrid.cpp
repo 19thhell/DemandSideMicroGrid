@@ -246,7 +246,6 @@ void initialize(int cnt)
 	for (int i = 0;i < CHECK_POINT;i++)
 	{
 		fenv >> point;
-		fenv >> price[1][point];
 		fenv >> shiftable[point] >> regular[point];
 		total_usage += shiftable[point] + regular[point];
 	}
@@ -821,6 +820,6 @@ int main()
 	
 	end = clock();
 	//cout << "\nCompleted.\nTime used: " << (double)(end - start) / (CLOCKS_PER_SEC * 60) << " min\n";
-    printf("\nCompleted.\nTime used: %f min\n",(double)(end - start) / (CLOCKS_PER_SEC * 60));
+    printf("\nCompleted.\nTime used: %.2f min\n",(double)(end - start) / (CLOCKS_PER_SEC * 60));
 	return 0;
 }

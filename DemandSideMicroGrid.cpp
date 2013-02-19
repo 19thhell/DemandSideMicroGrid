@@ -56,7 +56,7 @@ using namespace std;
 #define P_MUTATION 0.02
 #define P_SUBSTITUTE 0.05
 #define ROLL_BOUND 1
-#define MAX_LOOP_TIME 10
+#define MAX_LOOP_TIME 1
 #define MAX_DELAY 3
 #define STAGE 1
 #define FACTOR 1000000
@@ -223,15 +223,6 @@ void initialize(int cnt)
 			max_duration = duration[i];
 	}
 	fdur.close();
-	ifstream fpsg(string(dir).append("pricestage.txt").c_str());
-	for (int i = 0;i < CHECK_POINT;i++)
-	{
-		int point;
-		fpsg >> point;
-		for (int j = 1;j <= STAGE;j++)
-			fpsg >> price[j][point] >> stage[j][point];
-	}
-	fpsg.close();
 	ifstream ftyp(dirtyp.append("type.txt").c_str());
 	for (int i = 0;i < NUM_OF_TYPE;i++)
 	{
@@ -242,14 +233,24 @@ void initialize(int cnt)
 	ftyp.close();
 	ifstream fenv(string(dir).append(str).append(INPUT_ENV_NAME).append(".txt").c_str());
 	int point;
+	double price0;
 	total_usage = 0;
 	for (int i = 0;i < CHECK_POINT;i++)
 	{
 		fenv >> point;
-		fenv >> shiftable[point] >> regular[point];
+		fenv >> price0 >> shiftable[point] >> regular[point];
 		total_usage += shiftable[point] + regular[point];
 	}
 	fenv.close();
+	ifstream fpsg(string(dir).append("pricestage.txt").c_str());
+	for (int i = 0;i < CHECK_POINT;i++)
+	{
+		int point;
+		fpsg >> point;
+		for (int j = 1;j <= STAGE;j++)
+			fpsg >> price[j][point] >> stage[j][point];
+	}
+	fpsg.close();
 	ifstream fapp(string(dir).append(str).append(INPUT_APP_NAME).append(".txt").c_str());
 	for (int i = 0;i < CHECK_POINT;i++)
 		for (int j = 0;j < NUM_OF_TYPE;j++)

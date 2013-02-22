@@ -11,9 +11,9 @@
 using namespace std;
 
 //Choose Area
-#define RESIDENCE 1
+//#define RESIDENCE 1
 //#define INDUSTRY 2
-//#define COMMERCIAL 3
+#define COMMERCIAL 3
 
 #ifdef RESIDENCE
 #define NUM_OF_TYPE 14
@@ -56,8 +56,8 @@ using namespace std;
 #define P_MUTATION 0.02
 #define P_SUBSTITUTE 0.05
 #define ROLL_BOUND 1
-#define MAX_LOOP_TIME 1
-#define MAX_DELAY 3
+#define MAX_LOOP_TIME 10
+#define MAX_DELAY 12
 #define STAGE 1
 #define FACTOR 1000000
 #define DATA_HEAD 1
@@ -84,6 +84,7 @@ public:
 Request request[NUM_OF_TYPE][CHECK_POINT];
 int device[NUM_OF_TYPE] = {0};
 int duration[NUM_OF_TYPE] = {0};
+int best_amount[NUM_OF_TYPE][CHECK_POINT] = {0};
 double usage[NUM_OF_TYPE][CHECK_POINT] = {0};
 double load[CHECK_POINT] = {0};
 double regular[CHECK_POINT] = {0};
@@ -242,7 +243,7 @@ void initialize(int cnt)
 		total_usage += shiftable[point] + regular[point];
 	}
 	fenv.close();
-	ifstream fpsg(string(dir).append("pricestage.txt").c_str());
+	ifstream fpsg(string(dir).append("pricestage").append(convert(STAGE)).append(".txt").c_str());
 	for (int i = 0;i < CHECK_POINT;i++)
 	{
 		int point;
@@ -789,19 +790,23 @@ int main()
 		}
 		
 		ofstream ftotal(string(prefix).append("ga_bestgene.txt").c_str());
+		memset(best_amount,0,sizeof(best_amount));
 		for (j = 0;j < NUM_OF_GENE;j++)
 		{
+			int type = j % NUM_OF_TYPE,point = j / NUM_OF_TYPE;
 			for (int k = 0;k < history_best.gene[j].load.size();k++)
-				if (history_best.gene[j].load[k].amount > 0)
-					ftotal << history_best.gene[j].load[k].amount << " " << history_best.gene[j].load[k].step << endl;
-			if (history_best.gene[j].load.size() > 0)
-				ftotal << endl;
-			else ftotal << "0\n";
+				best_amount[type][point + history_best.gene[j].load[k].step] += history_best.gene[j].load[k].amount;
+		}
+		for (j = 0;j < CHECK_POINT;j++)
+		{
+			for (int k = 0;k < NUM_OF_TYPE;k++)
+				ftotal << best_amount[k][j] << "\t";
+			ftotal << endl;
 		}
 		ftotal.close();
 
 		ofstream fuse(string(prefix).append("ga_use.txt").c_str());
-		int i,k,p;
+		int k,p;
 		memset(load,0,sizeof(load));
 		for (j = 0;j < CHECK_POINT;j++)
 			for (k = 0;k < NUM_OF_TYPE;k++)
@@ -814,8 +819,8 @@ int main()
 						load[(j + m + temp.step) % CHECK_POINT] += temp.amount * usage[k][m];
 				}
 			}
-		for (i = 0;i < CHECK_POINT;i++)
-			fuse << load[i] << endl;
+		for (j = 0;j < CHECK_POINT;j++)
+			fuse << load[j] << endl;
 		fuse.close();
 	}
 	

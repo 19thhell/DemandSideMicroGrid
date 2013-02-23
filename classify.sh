@@ -1,6 +1,6 @@
 #!/bin/bash
 # Author:itxx00@gmail.com
-tdir=step$1
+tdir=resistagestep$1
 mkdir $tdir
 for ((i=1;i<=10;i++))
 do

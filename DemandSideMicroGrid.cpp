@@ -11,9 +11,9 @@
 using namespace std;
 
 //Choose Area
-//#define RESIDENCE 1
+#define RESIDENCE 1
 //#define INDUSTRY 2
-#define COMMERCIAL 3
+//#define COMMERCIAL 3
 
 #ifdef RESIDENCE
 #define NUM_OF_TYPE 14
@@ -56,12 +56,12 @@ using namespace std;
 #define P_MUTATION 0.02
 #define P_SUBSTITUTE 0.05
 #define ROLL_BOUND 1
-#define MAX_LOOP_TIME 10
+#define MAX_LOOP_TIME 1
 #define MAX_DELAY 12
-#define STAGE 1
+#define STAGE 2
 #define FACTOR 1000000
 #define DATA_HEAD 1
-#define DATA_TAIL 10
+#define DATA_TAIL 1
 const string INPUT_ENV_NAME = "inst";
 const string INPUT_APP_NAME = "iMnum";
 const string OUTPUT_FILE_NAME = "ga_log";
@@ -506,13 +506,13 @@ void select()
 					else i--;
 				}
 	}
-	/*
+	
 	for (i = 0;i < POP_SIZE;i++)
 	{
 		population[i] = newpopulation[i];
 		swirl(i,newpopulation[i]);
 	}
-	*/
+	
 }
 
 void crossover()
@@ -676,7 +676,6 @@ void rollback()
 	population[POP_SIZE] = population[0];
 }
 
-//函数待调整，未使用
 void swirl(int index,Genetype & base)
 {
 	int i,p;
@@ -777,8 +776,8 @@ int main()
 				report(count,prefix);
 				crossover();
 				mutate();
-			//	if (stable >= MAX_STABLE)
-			//		rollback();
+				if (stable >= MAX_STABLE)
+					rollback();
 				if (population[POP_SIZE].fitness > history_best.fitness)
 					history_best = population[POP_SIZE];
 				evaluate();

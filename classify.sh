@@ -1,5 +1,9 @@
 #!/bin/bash
 # Author:itxx00@gmail.com
+if test $# -le 0
+    then echo "Parameters unmatched!"
+    exit 1
+fi
 tdir=resistagestep$1
 mkdir $tdir
 for ((i=1;i<=10;i++))

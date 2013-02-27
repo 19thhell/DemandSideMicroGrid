@@ -11,3 +11,15 @@ do
     rm -rf $dir
     mkdir $dir
 done;
+for((i=1;i<=10;i++))
+do
+    dir=indu${i}"_step"$1
+    rm -rf $dir
+    mkdir $dir
+done;
+for((i=1;i<=10;i++))
+do
+    dir=comm${i}"_step"$1
+    rm -rf $dir
+    mkdir $dir
+done;

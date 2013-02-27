@@ -50,18 +50,19 @@ using namespace std;
 #define POP_SIZE 50
 #define MAX_GENERATION 8000
 #define NUM_OF_GENE GENE_PER_POINT * CHECK_POINT
-#define MAX_STABLE MAX_GENERATION / 10
-#define MODGA_R POP_SIZE / 2
+#define MAX_STABLE MAX_GENERATION * 2 / 5
+#define MODGA_R POP_SIZE * 3 / 5
 #define P_CROSSOVER 0.7
 #define P_MUTATION 0.02
 #define P_SUBSTITUTE 0.05
+#define P_SWIRL 0.01
 #define ROLL_BOUND 1
-#define MAX_LOOP_TIME 1
+#define MAX_LOOP_TIME 20
 #define MAX_DELAY 12
 #define STAGE 2
 #define FACTOR 1000000
 #define DATA_HEAD 1
-#define DATA_TAIL 1
+#define DATA_TAIL 10
 const string INPUT_ENV_NAME = "inst";
 const string INPUT_APP_NAME = "iMnum";
 const string OUTPUT_FILE_NAME = "ga_log";
@@ -333,6 +334,7 @@ void initialize(int cnt)
 					else break;
 					temp = population[i].gene[pos].load.back();
 				}
+				
 			}
 		}
 	}
@@ -471,6 +473,7 @@ void select()
 				if (p >= population[j].cfitness && p < population[j + 1].cfitness)
 					newpopulation[i] = population[j + 1];
 	}
+	/*
 	for (mem = 0;mem < MODGA_R;mem++)
 	{
 		x = rand() % 1000 / 1000.0;
@@ -482,6 +485,7 @@ void select()
 			else one = mem;
 		}
 	}
+	*/
 	for (i = MODGA_R;i < POP_SIZE;i++)
 	{
 		p = rand() % 1000 / 1000.0;
@@ -510,7 +514,9 @@ void select()
 	for (i = 0;i < POP_SIZE;i++)
 	{
 		population[i] = newpopulation[i];
-		swirl(i,newpopulation[i]);
+		double x = rand() % 1000 / 1000.0;
+		if (x < P_SWIRL)
+			swirl(i,newpopulation[i]);
 	}
 	
 }
@@ -657,21 +663,20 @@ void mutate()
 void rollback()
 {
 	int i,j;
-	for (i = 0;i < MODGA_R / 2;i++)
+	for (i = 0;i < MODGA_R / 5;i++)
 	{
 		j = rand() % POP_SIZE;
 		swirl(j,population[POP_SIZE]);
 	}
-	for (i = POP_SIZE - MODGA_R / 2;i < POP_SIZE;i++)
+	for (i = POP_SIZE - MODGA_R / 5;i < POP_SIZE;i++)
 	{
 		j = rand() % POP_SIZE;
 		swirl(j,history_best);
 	}
-	for (i = 0;i < POP_SIZE / 2;i++)
+	for (i = 0;i < POP_SIZE / 10;i++)
 	{
 		j = rand() % POP_SIZE;
 		substitute(j,POP_SIZE);
-		crossover(j,POP_SIZE);
 	}
 	population[POP_SIZE] = population[0];
 }
@@ -769,6 +774,8 @@ int main()
 			initialize(i);
 			evaluate();
 			keep_best();
+			//report(count,prefix);
+			//history_best = population[0];
 			while (generation++ < MAX_GENERATION)
 			{
 				elitist();

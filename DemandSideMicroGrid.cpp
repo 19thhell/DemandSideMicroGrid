@@ -11,8 +11,8 @@
 using namespace std;
 
 //Choose Area
-#define RESIDENCE 1
-//#define INDUSTRY 2
+//#define RESIDENCE 1
+#define INDUSTRY 2
 //#define COMMERCIAL 3
 
 #ifdef RESIDENCE
@@ -60,7 +60,7 @@ using namespace std;
 #define MAX_LOOP_TIME 20
 #define MAX_DELAY 12
 #define STAGE 2
-#define FACTOR 1000000
+#define FACTOR 100000000
 #define DATA_HEAD 1
 #define DATA_TAIL 10
 const string INPUT_ENV_NAME = "inst";
@@ -115,6 +115,7 @@ class Genetype
 {
 public:
 	Genetype():fitness(0),rfitness(0),cfitness(0){}
+    double max_load;
 	//Basic Property
 	Gene gene[NUM_OF_GENE];
 	double fitness;
@@ -349,11 +350,12 @@ void initialize(int cnt)
 
 void evaluate()
 {
-	double sum;
+	double sum,max_load;
 	int i,j,k,p,m;
 	for (i = 0;i <= POP_SIZE;i++)
 	{
 		sum = 0;
+        max_load = 0;
 		memset(load,0,sizeof(load));
 		for (j = 0;j < CHECK_POINT;j++)
 		{
@@ -368,13 +370,16 @@ void evaluate()
 				}
 			}
 			double total = load[j] + regular[j];
+            if (total > max_load)
+                max_load = total;
 			for (k = 1;k < STAGE;k++)
 				if (total >= stage[k - 1][j] && total < stage[k][j])
 					break;
 			sum += total * price[k][j];
 		}
 		//由于要计算最小电费，因此用电费的倒数作为适应值，FACTOR是用来保证精度的常数，结果文件中记录的不是适应值而是总电费
-		population[i].fitness = FACTOR / sum;
+		population[i].fitness = FACTOR / (sum * max_load);
+        population[i].max_load = max_load;
 	}
 }
 
@@ -714,7 +719,7 @@ void report(int cnt,string prefix)
 		for (int j = i;j < NUM_OF_GENE;j += NUM_OF_CITY)
 			fout << population[POP_SIZE].gene[j].borrow_city + 1 << " " << population[POP_SIZE].gene[j].borrow_amount << "\n";
 	}*/
-	fout << fixed << setprecision(4) << FACTOR / population[POP_SIZE].fitness << "\n";
+	fout << fixed << setprecision(4) << FACTOR / (population[POP_SIZE].fitness * population[POP_SIZE].max_load) << "\n";
 	fout.close();
 }
 
@@ -730,7 +735,7 @@ void trace(int cnt,string prefix)
 	}
 	for (int i = 0;i < NUM_OF_GENE;i++)
 		fout << population[POP_SIZE].gene[i].borrow_amount << "\n";*/
-	fout << fixed << setprecision(4) << FACTOR / history_best.fitness << "\n";
+	fout << fixed << setprecision(4) << FACTOR / (history_best.fitness * history_best.max_load) << "\n";
 	fout.close();
 }
 

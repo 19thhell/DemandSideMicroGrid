@@ -12,8 +12,8 @@ using namespace std;
 
 //Choose Area
 //#define RESIDENCE 1
-#define INDUSTRY 2
-//#define COMMERCIAL 3
+//#define INDUSTRY 2
+#define COMMERCIAL 3
 
 #ifdef RESIDENCE
 #define NUM_OF_TYPE 14

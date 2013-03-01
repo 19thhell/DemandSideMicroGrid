@@ -301,16 +301,22 @@ void initialize(int cnt)
 						int t;
 						//计算当前请求被应用到某个时刻后，该时刻用电量占总用电量的比例
 						for (t = 0;t <= remain;t++)
+                        {
+                            double max_load = 0;
 							for (int p = 0;p < duration[type];p++)
 							{
 								int s,pt;
 								pt = (j + temp.step + t + p) % CHECK_POINT;
 								double use = loaded[pt] + current[p];
+                                if (use > max_load)
+                                    max_load = use;
 								for (s = 1;s <= STAGE;s++)
 									if (use >= stage[s - 1][pt] && use < stage[s][pt])
 										break;
 								possible[t + 1] += use * price[s][pt];
 							}
+                            possible[t + 1] *= max_load;
+                        }
 						double sum = 0;
 						for (int p = 1;p <= t;p++)
 						{
@@ -625,16 +631,22 @@ void mutate()
 						double possible[CHECK_POINT + 1] = {0};
 						int t;
 						for (t = 0;t <= remain;t++)
+                        {
+                            double max_load = 0;
 							for (int p = 0;p < duration[type];p++)
 							{
 								int s,pt;
 								pt = (j + temp.step + t + p) % CHECK_POINT;
 								double use = loaded[pt] + current[p];
+                                if (use > max_load)
+                                    max_load = use;
 								for (s = 1;s <= STAGE;s++)
 									if (use >= stage[s - 1][pt] && use < stage[s][pt])
 										break;
 								possible[t + 1] += use * price[s][pt];
 							}
+                            possible[t + 1] *= max_load;
+                        }
 						double sum = 0;
 						for (int p = 1;p <= t;p++)
 						{

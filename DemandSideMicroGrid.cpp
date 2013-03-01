@@ -377,8 +377,8 @@ void evaluate()
 					break;
 			sum += total * price[k][j];
 		}
-		//由于要计算最小电费，因此用电费的倒数作为适应值，FACTOR是用来保证精度的常数，结果文件中记录的不是适应值而是总电费
-		population[i].fitness = FACTOR / (sum * max_load);
+		//由于要计算最小电费并减小峰值负载，因此用电费和峰值负载乘积的倒数作为适应值，FACTOR是用来保证精度的常数
+		population[i].fitness = FACTOR / (sum * max_load / 100);
         population[i].max_load = max_load;
 	}
 }
@@ -719,7 +719,7 @@ void report(int cnt,string prefix)
 		for (int j = i;j < NUM_OF_GENE;j += NUM_OF_CITY)
 			fout << population[POP_SIZE].gene[j].borrow_city + 1 << " " << population[POP_SIZE].gene[j].borrow_amount << "\n";
 	}*/
-	fout << fixed << setprecision(4) << FACTOR / (population[POP_SIZE].fitness * population[POP_SIZE].max_load) << "\n";
+	fout << fixed << setprecision(4) << FACTOR / population[POP_SIZE].fitness << "\n";
 	fout.close();
 }
 

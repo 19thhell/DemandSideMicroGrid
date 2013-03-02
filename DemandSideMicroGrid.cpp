@@ -11,9 +11,9 @@
 using namespace std;
 
 //Choose Area
-//#define RESIDENCE 1
+#define RESIDENCE 1
 //#define INDUSTRY 2
-#define COMMERCIAL 3
+//#define COMMERCIAL 3
 
 #ifdef RESIDENCE
 #define NUM_OF_TYPE 14
@@ -48,7 +48,7 @@ using namespace std;
 
 //Basic Const
 #define POP_SIZE 50
-#define MAX_GENERATION 8000
+#define MAX_GENERATION 5000
 #define NUM_OF_GENE GENE_PER_POINT * CHECK_POINT
 #define MAX_STABLE MAX_GENERATION * 2 / 5
 #define MODGA_R POP_SIZE * 3 / 5

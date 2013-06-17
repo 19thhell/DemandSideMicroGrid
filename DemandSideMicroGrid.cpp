@@ -11,9 +11,9 @@
 using namespace std;
 
 //Choose Area
-#define RESIDENCE 1
+//#define RESIDENCE 1
 //#define INDUSTRY 2
-//#define COMMERCIAL 3
+#define COMMERCIAL 3
 
 #ifdef RESIDENCE
 #define NUM_OF_TYPE 14
@@ -57,9 +57,9 @@ using namespace std;
 #define P_SUBSTITUTE 0.05
 #define P_SWIRL 0.01
 #define ROLL_BOUND 1
-#define MAX_LOOP_TIME 20
+#define MAX_LOOP_TIME 10
 #define MAX_DELAY 12
-#define STAGE 2
+#define STAGE 2 
 #define FACTOR 100000000
 #define DATA_HEAD 1
 #define DATA_TAIL 10
@@ -249,9 +249,13 @@ void initialize(int cnt)
 	for (int i = 0;i < CHECK_POINT;i++)
 	{
 		int point;
+        int times;
 		fpsg >> point;
-		for (int j = 1;j <= STAGE;j++)
-			fpsg >> price[j][point] >> stage[j][point];
+        fpsg >> price[1][point] >> stage[1][point];
+		for (int j = 2;j <= STAGE;j++){
+			fpsg >> times >> stage[j][point];
+            price[j][point] = price[1][point] * times;
+        }
 	}
 	fpsg.close();
 	ifstream fapp(string(dir).append(str).append(INPUT_APP_NAME).append(".txt").c_str());
@@ -369,6 +373,9 @@ void evaluate()
 						load[(j + m + temp.step) % CHECK_POINT] += temp.amount * usage[k][m];
 				}
 			}
+        }
+        for (j = 0;j < CHECK_POINT;j++)
+        {
 			double total = load[j] + regular[j];
             if (total > max_load)
                 max_load = total;
@@ -484,7 +491,7 @@ void select()
 				if (p >= population[j].cfitness && p < population[j + 1].cfitness)
 					newpopulation[i] = population[j + 1];
 	}
-	/*
+	
 	for (mem = 0;mem < MODGA_R;mem++)
 	{
 		x = rand() % 1000 / 1000.0;
@@ -496,7 +503,7 @@ void select()
 			else one = mem;
 		}
 	}
-	*/
+	
 	for (i = MODGA_R;i < POP_SIZE;i++)
 	{
 		p = rand() % 1000 / 1000.0;
@@ -521,7 +528,7 @@ void select()
 					else i--;
 				}
 	}
-	
+/*	
 	for (i = 0;i < POP_SIZE;i++)
 	{
 		population[i] = newpopulation[i];
@@ -529,7 +536,7 @@ void select()
 		if (x < P_SWIRL)
 			swirl(i,newpopulation[i]);
 	}
-	
+*/	
 }
 
 void crossover()
@@ -680,6 +687,7 @@ void mutate()
 void rollback()
 {
 	int i,j;
+    /*
 	for (i = 0;i < MODGA_R / 5;i++)
 	{
 		j = rand() % POP_SIZE;
@@ -690,11 +698,13 @@ void rollback()
 		j = rand() % POP_SIZE;
 		swirl(j,history_best);
 	}
+    
 	for (i = 0;i < POP_SIZE / 10;i++)
 	{
 		j = rand() % POP_SIZE;
 		substitute(j,POP_SIZE);
 	}
+    */
 	population[POP_SIZE] = population[0];
 }
 
@@ -791,8 +801,8 @@ int main()
 			initialize(i);
 			evaluate();
 			keep_best();
-			//report(count,prefix);
-			//history_best = population[0];
+			report(count,prefix);
+			history_best = population[0];
 			while (generation++ < MAX_GENERATION)
 			{
 				elitist();

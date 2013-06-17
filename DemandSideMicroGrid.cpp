@@ -528,7 +528,7 @@ void select()
 					else i--;
 				}
 	}
-/*	
+	
 	for (i = 0;i < POP_SIZE;i++)
 	{
 		population[i] = newpopulation[i];
@@ -536,7 +536,7 @@ void select()
 		if (x < P_SWIRL)
 			swirl(i,newpopulation[i]);
 	}
-*/	
+	
 }
 
 void crossover()
@@ -687,7 +687,7 @@ void mutate()
 void rollback()
 {
 	int i,j;
-    /*
+    
 	for (i = 0;i < MODGA_R / 5;i++)
 	{
 		j = rand() % POP_SIZE;
@@ -704,7 +704,7 @@ void rollback()
 		j = rand() % POP_SIZE;
 		substitute(j,POP_SIZE);
 	}
-    */
+    
 	population[POP_SIZE] = population[0];
 }
 
@@ -801,8 +801,8 @@ int main()
 			initialize(i);
 			evaluate();
 			keep_best();
-			report(count,prefix);
-			history_best = population[0];
+			//report(count,prefix);
+			//history_best = population[0];
 			while (generation++ < MAX_GENERATION)
 			{
 				elitist();
